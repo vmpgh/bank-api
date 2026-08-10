@@ -1,0 +1,106 @@
+
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+
+  metadata:
+    name: bank-api-ingress
+    namespace: bank-api
+
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+
+      alb.ingress.kubernetes.io/transforms.prometheus: |
+        [
+          {
+            "type": "url-rewrite",
+            "urlRewriteConfig": {
+              "rewrites": [
+                {
+                  "regex": "^/prometheus/?(.*)$",
+                  "replace": "/$1"
+                }
+              ]
+            }
+          }
+        ]
+
+      alb.ingress.kubernetes.io/transforms.jaeger: |
+        [
+          {
+            "type": "url-rewrite",
+            "urlRewriteConfig": {
+              "rewrites": [
+                {
+                  "regex": "^/jaeger/?(.*)$",
+                  "replace": "/$1"
+                }
+              ]
+            }
+          }
+        ]
+
+  spec:
+    ingressClassName: alb
+
+    rules:
+      - http:
+          paths:
+
+            - path: /api
+              pathType: Prefix
+              backend:
+                service:
+                  name: bank-api
+                  port:
+                    number: 8080
+
+            - path: /actuator
+              pathType: Prefix
+              backend:
+                service:
+                  name: bank-api
+                  port:
+                    number: 8080
+
+            - path: /prometheus
+              pathType: Prefix
+              backend:
+                service:
+                  name: prometheus
+                  port:
+                    number: 9090
+
+            - path: /grafana
+              pathType: Prefix
+              backend:
+                service:
+                  name: grafana
+                  port:
+                    number: 3000
+
+            - path: /jaeger
+              pathType: Prefix
+              backend:
+                service:
+                  name: jaeger
+                  port:
+                    number: 16686
+
+            - path: /kafka-ui
+              pathType: Prefix
+              backend:
+                service:
+                  name: kafka-ui
+                  port:
+                    number: 8080
+
+            - path: /redis
+              pathType: Prefix
+              backend:
+                service:
+                  name: redisinsight
+                  port:
+                    number: 5540
+

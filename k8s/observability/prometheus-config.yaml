@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: bank-api
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+
+    scrape_configs:
+      - job_name: "bank-api"
+        metrics_path: "/actuator/prometheus"
+        static_configs:
+          - targets:
+              - "bank-api.bank-api.svc.cluster.local:8080"

@@ -1,0 +1,57 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: redisinsight
+    namespace: bank-api
+
+spec:
+    replicas: 1
+
+    selector:
+      matchLabels:
+        app: redisinsight
+
+    template:
+      metadata:
+        labels:
+          app: redisinsight
+
+      spec:
+        containers:
+          - name: redisinsight
+            image: redis/redisinsight:latest
+
+            ports:
+              - containerPort: 5540
+                name: http
+
+            env:
+              - name: RI_PROXY_PATH
+                value: "/redis"
+
+            volumeMounts:
+              - name: redisinsight-data
+                mountPath: /data
+
+        volumes:
+          - name: redisinsight-data
+            emptyDir: {}
+---
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: redisinsight
+    namespace: bank-api
+
+  spec:
+    selector:
+      app: redisinsight
+
+    ports:
+      - name: http
+        port: 5540
+        targetPort: 5540
+
+    type: ClusterIP
+

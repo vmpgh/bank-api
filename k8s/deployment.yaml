@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: bank-api
+  namespace: bank-api
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: bank-api
+
+  template:
+    metadata:
+      labels:
+        app: bank-api
+
+    spec:
+      serviceAccountName: bank-api
+
+      containers:
+        - name: bank-api
+
+          image: 974284323479.dkr.ecr.eu-central-1.amazonaws.com/bank-api/backend:47
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8080
+
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "aws"
+
+            - name: RDS_SECRET_ARN
+              value: "arn:aws:secretsmanager:eu-central-1:974284323479:secret:rds!db-603e43a6-83f2-4690-adc5-62306432bcbd-OIzI84"
+
+            - name: MSK_BOOTSTRAP_SERVERS
+              value: "boot-h0ljgtxw.c1.kafka-serverless.eu-central-1.amazonaws.com:9098"
+
+            - name: REDIS_HOST
+              value: "master.bank-api-prod-redis.1ne11l.euc1.cache.amazonaws.com"
+
+            - name: REDIS_PORT
+              value: "6379"

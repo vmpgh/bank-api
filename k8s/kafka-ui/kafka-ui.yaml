@@ -1,0 +1,52 @@
+
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: kafka-ui
+    namespace: bank-api
+
+  spec:
+    replicas: 1
+
+    selector:
+      matchLabels:
+        app: kafka-ui
+
+    template:
+      metadata:
+        labels:
+          app: kafka-ui
+
+      spec:
+        serviceAccountName: kafka-ui
+
+        containers:
+          - name: kafka-ui
+            image: kafbat/kafka-ui@sha256:7cda86a33344160309fdb65146332e4da65db81a945614f2fe32e210803f6fd1
+
+            ports:
+              - containerPort: 8080
+                name: http
+
+            env:
+              - name: KAFKA_CLUSTERS_0_NAME
+                value: "bank-api-msk"
+
+              - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
+                value: "boot-h0ljgtxw.c1.kafka-serverless.eu-central-1.amazonaws.com:9098"
+
+              - name: KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL
+                value: "SASL_SSL"
+
+              - name: KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM
+                value: "AWS_MSK_IAM"
+
+              - name: KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG
+                value: "software.amazon.msk.auth.iam.IAMLoginModule required;"
+
+              - name: KAFKA_CLUSTERS_0_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS
+                value: "software.amazon.msk.auth.iam.IAMClientCallbackHandler"
+
+              - name: SERVER_SERVLET_CONTEXT_PATH
+                value: "/kafka-ui"
+
