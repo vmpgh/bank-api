@@ -1,0 +1,970 @@
+{
+  "info": {
+    "_postman_id": "e1987504-d8cd-4289-bfdd-c06f77ea7429",
+    "name": "Bank API",
+    "description": "Enterprise-grade banking REST API demonstrating modern backend  \nengineering practices using Spring Boot 4.\n\nHighlights:  \n• Secure JWT Authentication & Authorization  \n• RESTful Account and Transfer APIs  \n• Event-Driven Architecture with Kafka  \n• Transactional Outbox Pattern  \n• Redis Caching  \n• Optimistic Locking  \n• Flyway Schema Versioning  \n• OpenTelemetry Tracing & Prometheus Metrics  \n• Dockerized Deployment  \n• Testcontainers-powered Integration Testing  \n• Comprehensive Unit, Integration and End-to-End Testing\n\nContact Support:  \nName: Project Maintainer",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57088115",
+    "_collection_link": "https://go.postman.co/collection/57088115-e1987504-d8cd-4289-bfdd-c06f77ea7429?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "api",
+      "item": [
+        {
+          "name": "v1",
+          "item": [
+            {
+              "name": "transfers",
+              "item": [
+                {
+                  "name": "transfer",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{bearerToken}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Idempotency-Key",
+                        "value": "string"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"amount\": 4486.905521271483,\n  \"receiverAccountId\": \"f5255cc7-c9d2-fa09-b140-15f42c4b6faa\",\n  \"senderAccountId\": \"ebd1a90c-d04f-269d-06fa-e370b31008ad\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/transfers",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "transfers"
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "name": "OK",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Idempotency-Key",
+                            "value": "string"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"amount\": 4486.905521271483,\n  \"receiverAccountId\": \"f5255cc7-c9d2-fa09-b140-15f42c4b6faa\",\n  \"senderAccountId\": \"ebd1a90c-d04f-269d-06fa-e370b31008ad\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/v1/transfers",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "transfers"
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "text",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "*/*"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"senderAccountId\": \"5d8f66da-217f-62b4-8796-62c680170c52\",\n  \"receiverAccountId\": \"bfd155c0-fbe1-4845-0af7-9e316e61b30e\",\n  \"transferredAmount\": 4824.350524091279,\n  \"senderBalance\": 4272.244602280633,\n  \"receiverBalance\": 8605.273637391418,\n  \"completedAt\": \"1964-04-10T19:38:26.937Z\"\n}"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "auth",
+              "item": [
+                {
+                  "name": "login",
+                  "item": [
+                    {
+                      "name": "login",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"password\": \"string\",\n  \"username\": \"string\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/v1/auth/login",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "auth",
+                            "login"
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "OK",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "*/*"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"password\": \"string\",\n  \"username\": \"string\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/auth/login",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "auth",
+                                "login"
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "text",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "*/*"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"token\": \"string\"\n}"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "accounts",
+              "item": [
+                {
+                  "name": "{id}",
+                  "item": [
+                    {
+                      "name": "withdraw",
+                      "item": [
+                        {
+                          "name": "withdraw",
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "*/*"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"withdrawAmount\": 4089.6911057882367\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/accounts/:id/withdraw",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "accounts",
+                                ":id",
+                                "withdraw"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "id",
+                                  "value": "f30e4705-8190-7c23-3be2-cf217fff8322"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "*/*"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"withdrawAmount\": 4089.6911057882367\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/accounts/:id/withdraw",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "accounts",
+                                    ":id",
+                                    "withdraw"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "id",
+                                      "value": "f30e4705-8190-7c23-3be2-cf217fff8322"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "text",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "*/*"
+                                }
+                              ],
+                              "cookie": [],
+                              "body": "{\n  \"id\": \"8a6c1ce9-bd4e-2b3d-ad59-b89e12f9d0cb\",\n  \"userId\": \"6266c5c4-66ef-3043-db39-49b2a276ba8c\",\n  \"username\": \"string\",\n  \"balance\": 2164.554087463817\n}"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "deposit",
+                      "item": [
+                        {
+                          "name": "deposit",
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{bearerToken}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "*/*"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"depositAmount\": 1369.1068832652486\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/accounts/:id/deposit",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "accounts",
+                                ":id",
+                                "deposit"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "id",
+                                  "value": "f30e4705-8190-7c23-3be2-cf217fff8322"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "*/*"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"depositAmount\": 1369.1068832652486\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/accounts/:id/deposit",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "accounts",
+                                    ":id",
+                                    "deposit"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "id",
+                                      "value": "f30e4705-8190-7c23-3be2-cf217fff8322"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "text",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "*/*"
+                                }
+                              ],
+                              "cookie": [],
+                              "body": "{\n  \"id\": \"8a6c1ce9-bd4e-2b3d-ad59-b89e12f9d0cb\",\n  \"userId\": \"6266c5c4-66ef-3043-db39-49b2a276ba8c\",\n  \"username\": \"string\",\n  \"balance\": 2164.554087463817\n}"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "get By Id",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/v1/accounts/:id",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "accounts",
+                            ":id"
+                          ],
+                          "variable": [
+                            {
+                              "key": "id",
+                              "value": "f30e4705-8190-7c23-3be2-cf217fff8322"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "OK",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "*/*"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/accounts/:id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "accounts",
+                                ":id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "id",
+                                  "value": "f30e4705-8190-7c23-3be2-cf217fff8322"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "text",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "*/*"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"id\": \"8a6c1ce9-bd4e-2b3d-ad59-b89e12f9d0cb\",\n  \"userId\": \"6266c5c4-66ef-3043-db39-49b2a276ba8c\",\n  \"username\": \"string\",\n  \"balance\": 2164.554087463817\n}"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "delete By Id",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/v1/accounts/:id",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "accounts",
+                            ":id"
+                          ],
+                          "variable": [
+                            {
+                              "key": "id",
+                              "value": "f30e4705-8190-7c23-3be2-cf217fff8322"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "No Content",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/accounts/:id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "accounts",
+                                ":id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "id",
+                                  "value": "f30e4705-8190-7c23-3be2-cf217fff8322"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "No Content",
+                          "code": 204,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "body": ""
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "get All",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{bearerToken}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/accounts",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "accounts"
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "name": "OK",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/v1/accounts",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "accounts"
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "text",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "*/*"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "[\n  {\n    \"id\": \"e283fe67-6119-271f-31d5-47783dffdc0c\",\n    \"userId\": \"c46f5554-6d7c-962f-b15b-bb2bbec55a9e\",\n    \"username\": \"string\",\n    \"balance\": 4399.268825529685\n  },\n  {\n    \"id\": \"7fda315a-9453-e376-bb6c-5435450cbf81\",\n    \"userId\": \"d97d76ac-335d-729f-1453-c7f9248b0d27\",\n    \"username\": \"string\",\n    \"balance\": 9211.892429858117\n  }\n]"
+                    }
+                  ]
+                },
+                {
+                  "name": "create",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{jwt_token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"balance\": 9553.874342653928,\n  \"userId\": \"a77d53f2-100c-4e40-a889-cd20b6734ae4\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/accounts",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "accounts"
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "name": "Created",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"balance\": 9553.874342653928,\n  \"userId\": \"ea1ca471-2590-64b7-8bd9-9fa2f1744b04\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/v1/accounts",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "accounts"
+                          ]
+                        }
+                      },
+                      "status": "Created",
+                      "code": 201,
+                      "_postman_previewlanguage": "text",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "*/*"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"id\": \"8a6c1ce9-bd4e-2b3d-ad59-b89e12f9d0cb\",\n  \"userId\": \"6266c5c4-66ef-3043-db39-49b2a276ba8c\",\n  \"username\": \"string\",\n  \"balance\": 2164.554087463817\n}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          "const baseUrl = pm.environment.get(\"baseUrl\");\r",
+          "const username = pm.environment.get(\"username\");\r",
+          "const password = pm.environment.get(\"password\");\r",
+          "\r",
+          "const token = pm.environment.get(\"jwt_token\");\r",
+          "\r",
+          "\r",
+          "function isTokenExpired(token) {\r",
+          "\r",
+          "    if (!token) {\r",
+          "        return true;\r",
+          "    }\r",
+          "\r",
+          "    try {\r",
+          "        const payload = JSON.parse(\r",
+          "            atob(token.split(\".\")[1])\r",
+          "        );\r",
+          "\r",
+          "        const expiry = payload.exp * 1000;\r",
+          "\r",
+          "        return Date.now() >= expiry;\r",
+          "\r",
+          "    } catch (error) {\r",
+          "        console.log(\"Invalid JWT format\");\r",
+          "        return true;\r",
+          "    }\r",
+          "}\r",
+          "\r",
+          "\r",
+          "function login() {\r",
+          "\r",
+          "    console.log(\"Requesting new JWT...\");\r",
+          "\r",
+          "    pm.sendRequest({\r",
+          "\r",
+          "        url: baseUrl + \"/api/v1/auth/login\",\r",
+          "\r",
+          "        method: \"POST\",\r",
+          "\r",
+          "        header: {\r",
+          "            \"Content-Type\": \"application/json\"\r",
+          "        },\r",
+          "\r",
+          "        body: {\r",
+          "            mode: \"raw\",\r",
+          "            raw: JSON.stringify({\r",
+          "                username: username,\r",
+          "                password: password\r",
+          "            })\r",
+          "        }\r",
+          "\r",
+          "    }, function (err, res) {\r",
+          "\r",
+          "\r",
+          "        if (err) {\r",
+          "            console.log(\"Login request failed:\", err);\r",
+          "            return;\r",
+          "        }\r",
+          "\r",
+          "\r",
+          "        if (res.code !== 200) {\r",
+          "            console.log(\r",
+          "                \"Login failed:\",\r",
+          "                res.code,\r",
+          "                res.text()\r",
+          "            );\r",
+          "            return;\r",
+          "        }\r",
+          "\r",
+          "\r",
+          "        const response = res.json();\r",
+          "\r",
+          "\r",
+          "        // Adjust this if your API uses accessToken instead\r",
+          "        const jwt = response.token || response.accessToken;\r",
+          "\r",
+          "\r",
+          "        if (!jwt) {\r",
+          "            console.log(\r",
+          "                \"No JWT found in login response\",\r",
+          "                response\r",
+          "            );\r",
+          "            return;\r",
+          "        }\r",
+          "\r",
+          "\r",
+          "        pm.environment.set(\r",
+          "            \"jwt_token\",\r",
+          "            jwt\r",
+          "        );\r",
+          "\r",
+          "\r",
+          "        console.log(\"JWT saved successfully\");\r",
+          "\r",
+          "    });\r",
+          "}\r",
+          "\r",
+          "\r",
+          "if (isTokenExpired(token)) {\r",
+          "\r",
+          "    console.log(\"JWT missing or expired\");\r",
+          "\r",
+          "    login();\r",
+          "\r",
+          "} else {\r",
+          "\r",
+          "    console.log(\"Existing JWT is valid\");\r",
+          "\r",
+          "}\r",
+          "\r",
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ]
+}
