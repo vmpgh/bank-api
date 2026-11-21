@@ -12,6 +12,7 @@ import com.bank.bankapi.metrics.BankMetrics;
 import com.bank.bankapi.repository.AccountRepository;
 import com.bank.bankapi.repository.UserRepository;
 import com.bank.bankapi.service.AccountService;
+import com.bank.bankapi.transaction.TransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -36,6 +37,8 @@ public class AccountServiceImpl implements AccountService {
     private final UserRepository userRepository;
 
     private final BankMetrics bankMetrics;
+
+    private final TransactionService transactionService;
 
     @CachePut(value = "accounts", key = "#result.id")
     @Transactional
@@ -82,6 +85,7 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account ", accountId));
 
         account.deposit(deposit.getDepositAmount());
+        transactionService.recordDeposit(account, deposit.getDepositAmount());
         bankMetrics.incrementDepositsMade();
         log.info("Deposit of {} for {} completed", deposit.getDepositAmount(), accountId);
         return accountMapper.toResponse(account);
@@ -97,6 +101,7 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account ", accountId));
 
         account.withdraw(withdraw.getWithdrawAmount());
+        transactionService.recordWithdrawal(account, withdraw.getWithdrawAmount());
         bankMetrics.incrementWithdrawalsMade();
         log.info("Withdrawal of {} for {} completed", withdraw.getWithdrawAmount(), accountId);
         return accountMapper.toResponse(account);

@@ -7,8 +7,11 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -44,6 +47,47 @@ public class GlobalExceptionHandler {
                         FieldError::getDefaultMessage,
                         (existing, replacement) -> existing
                 ));
+
+        ApiError apiError = ApiError.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message("Validation failed")
+                .path(request.getRequestURI())
+                .errors(errors)
+                .build();
+
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
+    /** Bad path/query value, e.g. a malformed UUID, an unknown enum constant or an invalid date. */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleTypeMismatch(
+            MethodArgumentTypeMismatchException ex,
+            HttpServletRequest request) {
+
+        ApiError apiError = ApiError.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message("Invalid value for parameter '" + ex.getName() + "'")
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
+    /** Constraint violations on @RequestParam / @PathVariable (e.g. @Min, @Max). */
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ApiError> handleMethodValidation(
+            HandlerMethodValidationException ex,
+            HttpServletRequest request) {
+
+        Map<String, String> errors = new LinkedHashMap<>();
+        ex.getParameterValidationResults().forEach(result ->
+                errors.putIfAbsent(
+                        result.getMethodParameter().getParameterName(),
+                        result.getResolvableErrors().getFirst().getDefaultMessage()));
 
         ApiError apiError = ApiError.builder()
                 .timestamp(LocalDateTime.now())

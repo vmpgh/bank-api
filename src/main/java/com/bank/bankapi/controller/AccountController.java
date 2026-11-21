@@ -3,19 +3,30 @@ package com.bank.bankapi.controller;
 import com.bank.bankapi.dto.CreateAccountRequest;
 import com.bank.bankapi.dto.AccountResponse;
 import com.bank.bankapi.dto.DepositRequest;
+import com.bank.bankapi.dto.PageResponse;
+import com.bank.bankapi.dto.TransactionResponse;
 import com.bank.bankapi.dto.WithdrawRequest;
 import com.bank.bankapi.service.AccountService;
+import com.bank.bankapi.transaction.TransactionHistoryFilter;
+import com.bank.bankapi.transaction.TransactionService;
+import com.bank.bankapi.transaction.TransactionType;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/accounts")
 @SecurityRequirement(name = "bearerAuth")
@@ -23,9 +34,7 @@ public class AccountController {
 
     private final AccountService service;
 
-    public AccountController(AccountService service) {
-        this.service = service;
-    }
+    private final TransactionService transactionService;
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -60,6 +69,28 @@ public class AccountController {
                                    @Valid @RequestBody WithdrawRequest withdraw){
 
         return service.withdraw(id,withdraw);
+    }
+
+    /**
+     * Newest-first transaction history of one account.
+     * {@code from} is inclusive and {@code to} exclusive (ISO-8601 instants).
+     */
+    @PreAuthorize(
+            "hasRole('ADMIN') or @accountSecurity.isOwner(#id, authentication)"
+    )
+    @GetMapping("/{id}/transactions")
+    public PageResponse<TransactionResponse> getTransactions(
+            @PathVariable UUID id,
+            @RequestParam(required = false) TransactionType type,
+            @RequestParam(required = false) Instant from,
+            @RequestParam(required = false) Instant to,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+
+        TransactionHistoryFilter filter = new TransactionHistoryFilter(type, from, to);
+
+        return PageResponse.from(
+                transactionService.getHistory(id, filter, PageRequest.of(page, size)));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
