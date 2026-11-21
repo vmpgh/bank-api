@@ -10,6 +10,7 @@ import com.bank.bankapi.metrics.BankMetrics;
 import com.bank.bankapi.repository.AccountRepository;
 import com.bank.bankapi.repository.UserRepository;
 import com.bank.bankapi.service.impl.AccountServiceImpl;
+import com.bank.bankapi.transaction.TransactionService;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +41,9 @@ class AccountServiceImplTest {
 
     @Mock
     private BankMetrics bankMetrics;
+
+    @Mock
+    private TransactionService transactionService;
 
     @InjectMocks
     private AccountServiceImpl accountService;
@@ -284,6 +288,9 @@ class AccountServiceImplTest {
             verify(bankMetrics)
                     .incrementDepositsMade();
 
+            verify(transactionService)
+                    .recordDeposit(account, BigDecimal.valueOf(200));
+
             verify(accountMapper)
                     .toResponse(account);
         }
@@ -311,6 +318,8 @@ class AccountServiceImplTest {
 
             verify(accountMapper, never())
                     .toResponse(any());
+
+            verifyNoInteractions(transactionService);
         }
 
         @Test
@@ -417,6 +426,9 @@ class AccountServiceImplTest {
             verify(bankMetrics)
                     .incrementWithdrawalsMade();
 
+            verify(transactionService)
+                    .recordWithdrawal(account, BigDecimal.valueOf(200));
+
             verify(accountMapper)
                     .toResponse(account);
         }
@@ -468,6 +480,8 @@ class AccountServiceImplTest {
 
             verify(bankMetrics, never())
                     .incrementWithdrawalsMade();
+
+            verifyNoInteractions(transactionService);
 
             verify(accountMapper, never())
                     .toResponse(any());

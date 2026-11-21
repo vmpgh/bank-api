@@ -2,6 +2,8 @@ package com.bank.bankapi.e2e;
 
 import com.bank.bankapi.dto.AccountResponse;
 import com.bank.bankapi.dto.CreateAccountRequest;
+import com.bank.bankapi.dto.DepositRequest;
+import com.bank.bankapi.dto.WithdrawRequest;
 import com.bank.bankapi.dto.auth.LoginRequest;
 import com.bank.bankapi.dto.auth.LoginResponse;
 import com.bank.bankapi.entity.User;
@@ -27,6 +29,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -143,6 +146,57 @@ class BankApiE2ETest extends BaseIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
+    }
+
+    @Test
+    void depositAndWithdrawalShowUpInTransactionHistory() throws Exception {
+
+        String bearer = "Bearer " + adminToken;
+
+        User john = userRepository.findByUsername("john").orElseThrow();
+
+        CreateAccountRequest createRequest = new CreateAccountRequest();
+        createRequest.setUserId(john.getId());
+        createRequest.setBalance(new BigDecimal("1000.00"));
+
+        String accountJson = mockMvc.perform(post("/api/v1/accounts")
+                        .header("Authorization", bearer)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        AccountResponse account = objectMapper.readValue(accountJson, AccountResponse.class);
+
+
+        DepositRequest deposit = new DepositRequest();
+        deposit.setDepositAmount(new BigDecimal("250.00"));
+
+        mockMvc.perform(post("/api/v1/accounts/{id}/deposit", account.getId())
+                        .header("Authorization", bearer)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(deposit)))
+                .andExpect(status().isOk());
+
+
+        WithdrawRequest withdraw = new WithdrawRequest();
+        withdraw.setWithdrawAmount(new BigDecimal("100.00"));
+
+        mockMvc.perform(post("/api/v1/accounts/{id}/withdraw", account.getId())
+                        .header("Authorization", bearer)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(withdraw)))
+                .andExpect(status().isOk());
+
+
+        mockMvc.perform(get("/api/v1/accounts/{id}/transactions", account.getId())
+                        .header("Authorization", bearer))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.content[0].type").value("WITHDRAWAL"))
+                .andExpect(jsonPath("$.content[0].balanceAfter").value(1150.00))
+                .andExpect(jsonPath("$.content[1].type").value("DEPOSIT"))
+                .andExpect(jsonPath("$.content[1].balanceAfter").value(1250.00));
     }
 
 }
