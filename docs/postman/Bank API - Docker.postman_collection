@@ -151,7 +151,7 @@
                         ],
                         "body": {
                           "mode": "raw",
-                          "raw": "{\n  \"password\": \"string\",\n  \"username\": \"string\"\n}",
+                          "raw": "{\n  \"password\": \"{{password}}\",\n  \"username\": \"{{username}}\"\n}",
                           "options": {
                             "raw": {
                               "headerFamily": "json",
@@ -221,6 +221,20 @@
                           ],
                           "cookie": [],
                           "body": "{\n  \"token\": \"string\"\n}"
+                        }
+                      ],
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "type": "text/javascript",
+                            "exec": [
+                              "// Store the JWT so every other request can use {{bearerToken}}",
+                              "if (pm.response.code === 200) {",
+                              "    pm.environment.set(\"bearerToken\", pm.response.json().token);",
+                              "}"
+                            ]
+                          }
                         }
                       ]
                     }
@@ -639,6 +653,163 @@
                           "header": [],
                           "cookie": [],
                           "body": ""
+                        }
+                      ]
+                    },
+                    {
+                      "name": "get Transactions",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{bearerToken}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/v1/accounts/:id/transactions",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "accounts",
+                            ":id",
+                            "transactions"
+                          ],
+                          "query": [
+                            {
+                              "key": "type",
+                              "value": "DEPOSIT",
+                              "description": "Optional: DEPOSIT | WITHDRAWAL | TRANSFER_IN | TRANSFER_OUT",
+                              "disabled": true
+                            },
+                            {
+                              "key": "from",
+                              "value": "2026-01-01T00:00:00Z",
+                              "description": "Optional: inclusive ISO-8601 instant",
+                              "disabled": true
+                            },
+                            {
+                              "key": "to",
+                              "value": "2027-01-01T00:00:00Z",
+                              "description": "Optional: exclusive ISO-8601 instant",
+                              "disabled": true
+                            },
+                            {
+                              "key": "page",
+                              "value": "0",
+                              "description": "Zero-based page index (default 0)",
+                              "disabled": true
+                            },
+                            {
+                              "key": "size",
+                              "value": "20",
+                              "description": "Page size, 1-100 (default 20)",
+                              "disabled": true
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "key": "id",
+                              "value": "f30e4705-8190-7c23-3be2-cf217fff8322",
+                              "description": "Account ID (admin or account owner)"
+                            }
+                          ]
+                        },
+                        "description": "Newest-first, paged transaction history of one account. Allowed for ADMIN or the account owner. Enable query params to filter."
+                      },
+                      "response": [
+                        {
+                          "name": "OK",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "*/*"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/accounts/:id/transactions",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "accounts",
+                                ":id",
+                                "transactions"
+                              ],
+                              "query": [
+                                {
+                                  "key": "type",
+                                  "value": "DEPOSIT",
+                                  "description": "Optional: DEPOSIT | WITHDRAWAL | TRANSFER_IN | TRANSFER_OUT",
+                                  "disabled": true
+                                },
+                                {
+                                  "key": "from",
+                                  "value": "2026-01-01T00:00:00Z",
+                                  "description": "Optional: inclusive ISO-8601 instant",
+                                  "disabled": true
+                                },
+                                {
+                                  "key": "to",
+                                  "value": "2027-01-01T00:00:00Z",
+                                  "description": "Optional: exclusive ISO-8601 instant",
+                                  "disabled": true
+                                },
+                                {
+                                  "key": "page",
+                                  "value": "0",
+                                  "description": "Zero-based page index (default 0)",
+                                  "disabled": true
+                                },
+                                {
+                                  "key": "size",
+                                  "value": "20",
+                                  "description": "Page size, 1-100 (default 20)",
+                                  "disabled": true
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "id",
+                                  "value": "f30e4705-8190-7c23-3be2-cf217fff8322",
+                                  "description": "Account ID (admin or account owner)"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"content\": [\n    {\n      \"id\": \"2b1c7c55-0d0e-4f3a-9a51-7d2f1d9a0e11\",\n      \"accountId\": \"f30e4705-8190-7c23-3be2-cf217fff8322\",\n      \"type\": \"TRANSFER_OUT\",\n      \"amount\": 400.0,\n      \"balanceAfter\": 500.0,\n      \"counterpartyAccountId\": \"9d3f2a10-5b6c-4e7d-8f90-a1b2c3d4e5f6\",\n      \"transferId\": \"6a7b8c9d-0e1f-4a2b-9c3d-4e5f6a7b8c9d\",\n      \"createdAt\": \"2026-11-21T10:15:30.123456Z\"\n    },\n    {\n      \"id\": \"7e8f9a0b-1c2d-4e3f-8a4b-5c6d7e8f9a0b\",\n      \"accountId\": \"f30e4705-8190-7c23-3be2-cf217fff8322\",\n      \"type\": \"DEPOSIT\",\n      \"amount\": 200.0,\n      \"balanceAfter\": 900.0,\n      \"counterpartyAccountId\": null,\n      \"transferId\": null,\n      \"createdAt\": \"2026-11-21T10:14:02.654321Z\"\n    }\n  ],\n  \"page\": 0,\n  \"size\": 20,\n  \"totalElements\": 2,\n  \"totalPages\": 1\n}"
                         }
                       ]
                     }

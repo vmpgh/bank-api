@@ -34,6 +34,10 @@ Transfer flow (`POST /api/v1/transfers`, requires `Idempotency-Key` header):
 - `OutboxScheduler` (`@Scheduled(fixedDelay = 5000)`): publishes `PENDING` events to Kafka; exponential backoff (30s × 2^(n-1)); after 5 retries → DLT and `FAILED`.
 - `TransferCompletedConsumer` → `NotificationServiceImpl`, deduplicated via `processed_events`.
 
+Transaction history (`GET /api/v1/accounts/{id}/transactions`, admin or owner):
+- Every balance change writes an immutable `AccountTransaction` row via `TransactionService.record*`, which uses `Propagation.MANDATORY` and runs in the caller's transaction. A transfer writes two legs (`TRANSFER_OUT`/`TRANSFER_IN`) sharing `transfer_id` = the outbox event id.
+- Reads are paged newest-first, with optional `type`/`from`/`to` filters built with `AccountTransactionSpecifications`, and are returned as `PageResponse<T>`. Not cached.
+
 ## Packages (`com.bank.bankapi`)
 
 - `config` – AWS client (region hard-coded `EU_CENTRAL_1`), `aws`-profile DataSource, Kafka topics, OpenAPI, JPA auditing, seed users (`DataInitializer`).
@@ -47,6 +51,7 @@ Transfer flow (`POST /api/v1/transfers`, requires `Idempotency-Key` header):
 - `outbox` – outbox entity, repository, service, scheduler.
 - `kafka.event` / `kafka.producer` / `kafka.consumer` – event records, main + DLT publishers, listener.
 - `notification` – idempotent event handling.
+- `transaction` – transaction-history ledger: `AccountTransaction` entity, `TransactionType`, repository + specifications, `TransactionService`.
 - `redis.cache`, `redis.imdepotency`, `redis.ratelimit`, `redis.lock` – cache manager, idempotency, rate limiting, distributed lock. (`imdepotency` is misspelled; don't rename unless asked.)
 - `metrics` – Micrometer counters (`BankMetrics`, `KafkaMetrics`, `CacheMetrics`).
 - `exception` – custom exceptions, `ApiError`, `GlobalExceptionHandler`.
@@ -61,7 +66,8 @@ Transfer flow (`POST /api/v1/transfers`, requires `Idempotency-Key` header):
 - Accounts are soft-deleted (`deleted`, `deletedAt`); `Account` has `@Version` optimistic locking.
 - Events and small value types are Java `record`s.
 - REST paths under `/api/v1/...`; `CREATED` for create, `NO_CONTENT` for delete; `@SecurityRequirement(name = "bearerAuth")` on protected controllers.
-- Cache name `"accounts"` keyed by account UUID; any balance-changing method must evict affected account keys.
+- Cache name `"accounts"` keyed by account UUID; any balance-changing method must evict affected account keys **and** record a ledger entry via `TransactionService`.
+- Paged endpoints return `dto.PageResponse<T>`, not a raw Spring `Page`.
 - Instrument key operations with `@Observed(name = "bank.<area>.<action>")`; business counters go in `BankMetrics` / `KafkaMetrics`.
 - New exceptions go in `exception/` with a matching `@ExceptionHandler` returning `ApiError`.
 - App-specific properties use the `bank.*` prefix, read with `@Value`.
@@ -70,8 +76,8 @@ Transfer flow (`POST /api/v1/transfers`, requires `Idempotency-Key` header):
 ## Database and migrations
 
 - Schema is owned by **Flyway**; Hibernate uses `ddl-auto=validate`, so entities must match the migrated schema exactly.
-- Migrations: `src/main/resources/db/migration/V<n>__<snake_case_description>.sql` (latest: `V6`). Never edit an applied migration — add `V<n+1>`.
-- Tables: `users`, `accounts`, `outbox_events`, `processed_events`. `users`/`accounts` use `TIMESTAMP WITH TIME ZONE`; `outbox_events`/`processed_events` use `TIMESTAMP` — match the existing table when altering it.
+- Migrations: `src/main/resources/db/migration/V<n>__<snake_case_description>.sql` (latest: `V7`). Never edit an applied migration — add `V<n+1>`.
+- Tables: `users`, `accounts`, `account_transactions`, `outbox_events`, `processed_events`. `users`/`accounts`/`account_transactions` use `TIMESTAMP WITH TIME ZONE`; `outbox_events`/`processed_events` use `TIMESTAMP` — match the existing table when altering it.
 - If integration tests write to a new table, add it to `src/test/resources/sql/cleanup.sql` (`users` is intentionally not truncated).
 
 ## Security requirements
@@ -122,7 +128,7 @@ Compose reads `POSTGRES_*` and `SPRING_DATASOURCE_*` from a `.env` file that is 
 
 - `RedisDistributedLockService` is unused; `OutboxScheduler` is not safe with more than one replica.
 - Only `getById` filters soft-deleted accounts (`findByIdAndDeletedFalse`); deposit, withdraw, transfer and `AccountSecurity.isOwner` use `findById`.
-- `GlobalExceptionHandler` doesn't handle `OptimisticLockingFailureException`, missing request headers, or access-denied; invalid/expired JWTs throw inside the filter.
+- `GlobalExceptionHandler` doesn't handle `OptimisticLockingFailureException`, missing request headers, or access-denied (it does map type mismatches and `@RequestParam` constraint violations to 400); invalid/expired JWTs throw inside the filter.
 - `TransferCompletedConsumer` hard-codes `topics = "transfer-completed"` instead of using `bank.kafka.topics.transfer-completed`.
 - `IdempotencyServiceImpl.get` calls `key.substring(0, 8)` (unused) and throws for keys shorter than 8 chars.
 - `metrics/MetricsRedisCache.java` is fully commented out.
