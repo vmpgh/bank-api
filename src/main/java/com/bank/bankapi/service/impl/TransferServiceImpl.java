@@ -9,6 +9,7 @@ import com.bank.bankapi.metrics.BankMetrics;
 import com.bank.bankapi.repository.AccountRepository;
 import com.bank.bankapi.outbox.OutboxService;
 import com.bank.bankapi.service.TransferService;
+import com.bank.bankapi.transaction.TransactionService;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,8 @@ public class TransferServiceImpl implements TransferService {
     //private final TransferEventPublisher publisher;
 
     private final OutboxService outboxService;
+
+    private final TransactionService transactionService;
 
     @Override
     @Observed(name = "bank.transfer")
@@ -64,6 +67,9 @@ public class TransferServiceImpl implements TransferService {
                         request.getAmount(),
                         completedAt
                 );
+
+        transactionService.recordTransfer(
+                sender, receiver, request.getAmount(), event.eventId(), completedAt);
 
         outboxService.save(
                 "TransferCompleted",

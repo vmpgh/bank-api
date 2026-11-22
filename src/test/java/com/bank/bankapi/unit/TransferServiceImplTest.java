@@ -13,6 +13,7 @@ import com.bank.bankapi.dto.TransferRequest;
 import com.bank.bankapi.dto.TransferResponse;
 
 import com.bank.bankapi.service.impl.TransferServiceImpl;
+import com.bank.bankapi.transaction.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,10 @@ class TransferServiceImplTest {
 
     @Mock
     private BankMetrics bankMetrics;
+
+
+    @Mock
+    private TransactionService transactionService;
 
 
     @InjectMocks
@@ -181,6 +186,38 @@ class TransferServiceImplTest {
             verify(bankMetrics)
                     .incrementTransfersMade();
         }
+
+
+        @Test
+        void recordsBothLegsWithEventIdAsTransferId() {
+
+            when(accountRepository.findById(senderId))
+                    .thenReturn(Optional.of(sender));
+
+            when(accountRepository.findById(receiverId))
+                    .thenReturn(Optional.of(receiver));
+
+
+            TransferResponse response =
+                    transferService.transfer(createRequest(new BigDecimal("200.00")));
+
+
+            ArgumentCaptor<TransferCompletedEvent> eventCaptor =
+                    ArgumentCaptor.forClass(TransferCompletedEvent.class);
+
+            verify(outboxService)
+                    .save(eq("TransferCompleted"), eventCaptor.capture());
+
+
+            verify(transactionService)
+                    .recordTransfer(
+                            sender,
+                            receiver,
+                            new BigDecimal("200.00"),
+                            eventCaptor.getValue().eventId(),
+                            response.getCompletedAt()
+                    );
+        }
     }
     @Nested
     class SenderMissing {
@@ -214,6 +251,8 @@ class TransferServiceImplTest {
 
 
             verifyNoInteractions(outboxService);
+
+            verifyNoInteractions(transactionService);
         }
     }
 
@@ -259,6 +298,8 @@ class TransferServiceImplTest {
 
 
             verifyNoInteractions(outboxService);
+
+            verifyNoInteractions(transactionService);
         }
     }
 
@@ -317,6 +358,8 @@ class TransferServiceImplTest {
 
             verifyNoInteractions(outboxService);
 
+            verifyNoInteractions(transactionService);
+
 
             verify(bankMetrics, never())
                     .incrementTransfersMade();
@@ -362,6 +405,8 @@ class TransferServiceImplTest {
             verifyNoInteractions(accountRepository);
 
             verifyNoInteractions(outboxService);
+
+            verifyNoInteractions(transactionService);
 
             verify(bankMetrics, never())
                     .incrementTransfersMade();
